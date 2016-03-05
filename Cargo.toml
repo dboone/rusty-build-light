@@ -1,0 +1,8 @@
+[package]
+
+name = "rusty-build-light"
+version = "0.0.1"
+authors = [ "dboone <boonesoftware@gmail.com>" ]
+
+[dependencies.curl]
+git = "https://github.com/carllerche/curl-rust"

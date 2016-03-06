@@ -19,39 +19,40 @@ fn get(path : &str) -> Result<Response, ErrCode> {
 		.exec()
 }
 
-// TODO - this should use /projects and iterate
-// through all of the projects searching for one
-// that matches the given name
-
-// TODO - this should have proper error handling
-fn get_project_id(project : &str) -> u32 {
+fn get_project_id(project : &str) -> Option<u32> {
 	#[derive(RustcEncodable, RustcDecodable)]
-	struct ProjectIdResponse { id : u32, }
+	struct ProjectIdResponse {
+		id : u32,
+		name : String,
+	}
 
-	let result = get("/projects/1");
-	
+	let result = get("/projects");
+
 	match result {
 		Ok(response) => {
 			let body = from_utf8(response.get_body());
 			match body {
 				Ok(b) => {
-					let id_response : ProjectIdResponse = json::decode(&b).unwrap();
-					return id_response.id
+					let responses : Vec<ProjectIdResponse> = json::decode(&b).unwrap();
+
+					for response in responses.iter() {
+						if response.name == project {
+							return Some(response.id)
+						}
+					}
+					None
 				},
-				Err(e) => {
-					println!("error: {}", e);
-					return 2^31
-				},
+				Err(e) => { println!("error: {}", e); None },
 			}
 		}
-		Err(e) => {
-			println!("error: {}", e);
-			return 2^31
-		},
+		Err(e) => {	println!("error: {}", e); None },
 	}
 }
 
 fn main() {
 	let id0 = get_project_id("my-awesome-project");
-	println!("{}", id0);
+	println!("{}", id0.unwrap());
+
+	let id1 = get_project_id("my-lame-project");
+	println!("{}", id1.unwrap());
 }

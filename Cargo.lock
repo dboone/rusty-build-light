@@ -3,6 +3,7 @@ name = "rusty-build-light"
 version = "0.0.1"
 dependencies = [
  "curl 0.2.16 (git+https://github.com/carllerche/curl-rust)",
+ "rustc-serialize 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

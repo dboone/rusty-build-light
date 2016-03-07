@@ -5,6 +5,7 @@ version = "0.0.1"
 authors = [ "dboone <boonesoftware@gmail.com>" ]
 
 [dependencies]
+chrono = "0.2"
 rustc-serialize = "0.3"
 
 [dependencies.curl]

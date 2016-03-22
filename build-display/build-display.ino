@@ -34,15 +34,15 @@ void setup() {
   while (!Serial) {
     ; // wait for port to connect
   }
-  pinMode(XM, OUTPUT);
-  pinMode(YP, OUTPUT);
   tft.reset();
 
   uint16_t identifier = tft.readID();
 
   tft.begin(identifier);
   tft.setRotation(1);
-  establishContact();
+  tft.setTextColor(CYAN);
+  tft.setTextSize(2);
+  clearBuffer();
 }
 
 void drawButtons() {
@@ -51,53 +51,32 @@ void drawButtons() {
   tft.fillRect(295, 75, 20, 15, BLUE);
 }
 
-void establishContact() {
-  tft.fillScreen(BLACK);
-  tft.setTextColor(RED);
-  tft.setCursor(0, 0);
-  tft.setTextSize(2);
-  tft.println("Connecting...");
-// TODO - this creates an infinite loop
-  //while(Serial.available() <= 0) {
-    Serial.print("START");
-    delay(300);
-  //}
+char message[256];
+size_t i = 0;
+
+void clearBuffer()
+{
+  for (size_t j = 0; j < 256; ++j)
+  {
+    message[j] = '\0';
+  }
 }
 
-int state = 0;
-
-void loop() {
-  tft.fillScreen(BLACK);
-  tft.setTextColor(BLUE);
-  tft.setCursor(0, 0);
-  tft.setTextSize(2);
-  tft.println("GitLab Build Status\n");
-  drawButtons();
-  tft.setTextSize(2);
+void loop() {  
   while (Serial.available() > 0) {
-    String message = Serial.readStringUntil(';');
-    if (state == 0) { // header
-      tft.setTextColor(MAGENTA);
-      tft.println("Project:");
-      tft.println(" " + message);
-      tft.println();
-      tft.setTextColor(CYAN);
-      tft.println("Branch(es):");
-      state = 1;
-    } else if (state == 1) {  // body
-      char commit = message[message.length() - 1];
-      if (commit == '1') {
-        tft.setTextColor(GREEN);
-      } else {
-        tft.setTextColor(RED);
-      }
-      tft.println(" " + message.substring(0, message.length() - 1));
-    }
-  }
+    char ch = Serial.read();
 
-  state = 0;
-  
-  while (Serial.available() <= 0) {
-    delay(500);
+    message[i++] = ch;
+
+    if (ch == ';')
+    {
+        tft.fillScreen(BLACK);
+        tft.setCursor(0, 0);
+        message[i-1] = '\0';
+        i = 0;
+        tft.print(message);
+        clearBuffer();
+        break;
+    }
   }
 }
